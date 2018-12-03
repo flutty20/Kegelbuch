@@ -20,4 +20,7 @@ public class Spieler {
         return schulden;
     }
 
+    public void machtFehler(){}
+
+
 }
