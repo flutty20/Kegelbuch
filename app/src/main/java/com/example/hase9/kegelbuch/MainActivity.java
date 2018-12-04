@@ -11,29 +11,52 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-private Button btNSpiel;
-    private Button btNSpieler;
-    private Button btE;
-    private Intent intent;
+    private Button BTNNSpiel;
+    private Button BTNNSpieler;
+    private Button BTNEinstellungen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btNSpiel =(Button)findViewById(R.id.BTNNSpiel);
-        btNSpieler=(Button)findViewById(R.id.BTNNSpieler);
-        btE=(Button)findViewById(R.id.BTNEinstellungen);
+        BTNNSpiel =(Button)findViewById(R.id.BTNNSpiel);
+        BTNNSpieler=(Button)findViewById(R.id.BTNNSpieler);
+        BTNEinstellungen=(Button)findViewById(R.id.BTNEinstellungen);
 
-        btNSpieler.setOnClickListener(new View.OnClickListener() {
+        BTNNSpieler.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openActivity();
+                openActivityNeuerSpieler();
+            }
+        });
+
+        BTNNSpiel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openActivityNeuesSpiel();
+            }
+        });
+
+        BTNEinstellungen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openActivityEinstellungen();
             }
         });
     }
 
-    private void openActivity() {
-        intent = new Intent(this,neuerSpieler.class);
+    private void openActivityNeuerSpieler() {
+        Intent intent = new Intent(this,neuerSpieler.class);
+        startActivity(intent);
+    }
+    private void  openActivityNeuesSpiel() {
+        Intent intent = new Intent(this,Spiel.class);
+        startActivity(intent);
+
+    }
+    private void  openActivityEinstellungen() {
+        Intent intent = new Intent(this,Einstellungen.class);
         startActivity(intent);
     }
 }

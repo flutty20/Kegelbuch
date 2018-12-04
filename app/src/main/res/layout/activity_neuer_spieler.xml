@@ -7,18 +7,18 @@
     tools:context=".neuerSpieler">
 
     <Button
-        android:id="@+id/Btzurueck"
+        android:id="@+id/BTNZurueck"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:text="Zurück"
-        app:layout_constraintBaseline_toBaselineOf="@+id/BtSpeichern"
-        app:layout_constraintEnd_toStartOf="@+id/BtSpeichern"
+        app:layout_constraintBaseline_toBaselineOf="@+id/BTNSpeichern"
+        app:layout_constraintEnd_toStartOf="@+id/BTNSpeichern"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/BtSpeichern"
+        android:id="@+id/BTNSpeichern"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -26,7 +26,7 @@
         android:text="Speichern"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/Btzurueck" />
+        app:layout_constraintStart_toEndOf="@+id/BTNZurueck" />
 
     <EditText
         android:id="@+id/EtVName"
@@ -36,8 +36,8 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
+        android:hint="Vorname"
         android:inputType="textPersonName"
-        android:text="Vorname"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
@@ -50,8 +50,8 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
+        android:hint="Nachname"
         android:inputType="textPersonName"
-        android:text="Nachname"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/EtVName" />
@@ -64,8 +64,8 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
+        android:hint="Spitzname"
         android:inputType="textPersonName"
-        android:text="Spitzname"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/EtNName" />
