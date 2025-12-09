@@ -3,99 +3,49 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      - name: Checkout
+        uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
+          cache: 'npm'
+      
       - name: Install dependencies
-        run: npm install
-
-      - name: Run auto-fixes (Prettier + ESLint)
-        run: |
-          npm run format || true
-          npm run lint:fix || true
-
-      - name: Create branch and commit autofixes
-        id: commit_autofix
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            BRANCH_NAME="autofix/${{ github.run_id }}"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git checkout -b "$BRANCH_NAME"
-            git add .
-            git restore --staged .github/workflows/pages.yml
-            git checkout HEAD -- .github/workflows/pages.yml
-            git commit -m "chore: apply automatic fixes [skip ci]" || echo "No commit"
-            git push origin "$BRANCH_NAME"
-            echo "AUTOFIX_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
-          else
-            echo "NO_CHANGES=true" >> $GITHUB_ENV
-          fi
-
-      - name: Create Pull Request for autofixes
-        if: env.NO_CHANGES != 'true'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: apply automatic fixes [skip ci]"
-          branch: ${{ env.AUTOFIX_BRANCH }}
-          base: main
-          title: "chore: apply automatic fixes"
-          body: |
-            This PR contains automatic code style and lint fixes applied by CI (Prettier + ESLint).
-            Please review and merge if acceptable.
-
-      # Qodana temporarily disabled — enable after successful first deploy
-      # - name: Run Qodana code inspection
-      #   uses: jetbrains/qodana-action/analyze@v2024.3
-      #   with:
-      #     # Use the JavaScript Qodana image to analyze JS/TS projects
-      #     image: jetbrains/qodana-js:2024.3
-      #     project-dir: .
-      #     output-path: qodana-results
-      #     # fail-threshold: number of new issues allowed (set to '0' to fail on any issue)
-      #     fail-threshold: '0'
-      #
-      # - name: Upload Qodana report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: qodana-report
-      #     path: qodana-results
-
+        run: npm ci
+      
       - name: Build
         run: npm run build
-
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-artifact@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: ./dist
-          retention-days: 1
+          path: './dist'
 
   deploy:
-    needs: build-and-deploy
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-      contents: write
-
+    needs: build
     steps:
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        id: deployment
+        uses: actions/deploy-pages@v4
