@@ -52,7 +52,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: apply automatic fixes [skip ci]"
           branch: ${{ env.AUTOFIX_BRANCH }}
-            base: main
+          base: main
           title: "chore: apply automatic fixes"
           body: |
             This PR contains automatic code style and lint fixes applied by CI (Prettier + ESLint).
