@@ -40,6 +40,7 @@ jobs:
             git checkout -b "$BRANCH_NAME"
             git add .
             git restore --staged .github/workflows/pages.yml
+            git checkout HEAD -- .github/workflows/pages.yml
             git commit -m "chore: apply automatic fixes [skip ci]" || echo "No commit"
             git push origin "$BRANCH_NAME"
             echo "AUTOFIX_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
