@@ -1,39 +1,38 @@
 /**
- * defaultConfig.js - Standardkonfiguration für das Kegelbuch
+ * defaultConfig.js - Default configuration for the Kegelbuch
  *
- * Diese Datei enthält alle konfigurierbaren Einstellungen:
- * - Startgebühr pro Spieler
- * - Liste der Strafen mit Preisen
- * - Liste der Spielarten
- * - Währungseinstellung
+ * This file contains all configurable settings:
+ * - Entry fee per player
+ * - List of penalties with prices
+ * - List of game types
+ * - Currency setting
  *
- * WICHTIG: Diese Werte können später über eine Einstellungs-Seite
- * vom Benutzer angepasst werden. Änderungen hier sind die Standardwerte
- * für neue Installationen.
+ * NOTE: These values can later be adjusted by the user through a settings page.
+ * Changes here are the default values for new installations.
  */
 
 /**
- * Standard-Konfiguration
- * Wird beim ersten Start der App verwendet
+ * Default configuration
+ * Used on first app startup
  */
 export const defaultConfig = {
   // ============================================
-  // GRUNDGEBÜHR
+  // ENTRY FEE
   // ============================================
 
-  // Startgebühr die jeder Spieler pro Abend zahlt (in Euro)
+  // Entry fee each player pays per evening (in Euro)
   startgebuehr: 6.0,
 
   // ============================================
-  // STRAFEN
+  // PENALTIES (Strafen)
   // ============================================
 
-  // Liste aller möglichen Strafen
-  // Jede Strafe hat:
-  // - id: Eindeutiger Bezeichner (für die Datenbank)
-  // - label: Kurzname (wird in der Tabelle angezeigt)
-  // - description: Beschreibung (wird als Tooltip angezeigt)
-  // - preis: Kosten pro Strafe in Euro
+  // List of all possible penalties
+  // Each penalty has:
+  // - id: Unique identifier (for database)
+  // - label: Short name (displayed in table)
+  // - description: Description (shown as tooltip)
+  // - preis: Cost per penalty in Euro
   strafen: [
     { id: 'kalle', label: 'Kalle', description: 'Ball ins Aus', preis: 0.5 },
     { id: 'stina', label: 'Stina', description: 'Mittlere 3 Pins', preis: 0.5 },
@@ -42,56 +41,56 @@ export const defaultConfig = {
   ],
 
   // ============================================
-  // SPIELARTEN
+  // GAME TYPES (Spielarten)
   // ============================================
 
-  // Liste der Spielarten/Wettbewerbe
-  // Jede Spielart hat:
-  // - id: Eindeutiger Bezeichner
-  // - label: Kurzname (wird in der Tabelle angezeigt)
-  // - description: Voller Name (wird als Tooltip angezeigt)
+  // List of game types/competitions
+  // Each game type has:
+  // - id: Unique identifier
+  // - label: Short name (displayed in table)
+  // - description: Full name (shown as tooltip)
   spielarten: [
     { id: 'wm', label: 'WM', description: 'Wachtberg Meisterschaft' },
     { id: 'gs', label: 'GS', description: 'Geldspiel' },
   ],
 
   // ============================================
-  // SONSTIGES
+  // MISC
   // ============================================
 
-  // Währungssymbol für die Anzeige
+  // Currency symbol for display
   waehrung: '€',
 };
 
 /**
- * Erstellt einen neuen, leeren Spieler
+ * Creates a new, empty player
  *
- * Wird verwendet wenn "Spieler hinzufügen" geklickt wird
+ * Used when "Add Player" is clicked
  *
- * @param {string} name - Optional: Vorausgefüllter Name
- * @returns {Object} - Neues Spieler-Objekt
+ * @param {string} name - Optional: Pre-filled name
+ * @returns {Object} - New player object
  */
 export const createEmptyPlayer = (name = '') => ({
-  id: crypto.randomUUID(), // Eindeutige ID generieren
-  name, // Name (leer oder vorgegeben)
-  anwesend: true, // Standardmäßig anwesend
-  strafen: {}, // Leeres Objekt für Strafen {strafeId: anzahl}
-  spiele: {}, // Leeres Objekt für Spielergebnisse {spielId: ergebnis}
+  id: crypto.randomUUID(), // Generate unique ID
+  name, // Name (empty or provided)
+  anwesend: true, // Present by default
+  strafen: {}, // Empty object for penalties {penaltyId: count}
+  spiele: {}, // Empty object for game results {gameId: result}
 });
 
 /**
- * Erstellt einen neuen, leeren Kegelabend
+ * Creates a new, empty bowling evening
  *
- * Wird verwendet wenn "Neuer Abend" geklickt wird
+ * Used when "New Evening" is clicked
  *
- * @param {string} datum - Optional: Datum im Format 'YYYY-MM-DD'
- *                         Standard: Heutiges Datum
- * @returns {Object} - Neues Kegelabend-Objekt
+ * @param {string} datum - Optional: Date in format 'YYYY-MM-DD'
+ *                         Default: Today's date
+ * @returns {Object} - New bowling evening object
  */
 export const createEmptyKegelabend = (datum = new Date().toISOString().split('T')[0]) => ({
-  id: crypto.randomUUID(), // Eindeutige ID
-  datum, // Datum des Kegelabends
-  spieler: [], // Leere Spielerliste
-  notizen: '', // Optionale Notizen
-  abgeschlossen: false, // Noch nicht abgeschlossen
+  id: crypto.randomUUID(), // Unique ID
+  datum, // Date of the bowling evening
+  spieler: [], // Empty player list
+  notizen: '', // Optional notes
+  abgeschlossen: false, // Not yet completed
 });

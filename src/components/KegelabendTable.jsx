@@ -1,22 +1,22 @@
 /**
- * KegelabendTable.jsx - Tabellen-Komponente für einen Kegelabend
+ * KegelabendTable.jsx - Table component for a bowling evening
  *
- * Diese Komponente zeigt die Haupttabelle eines Kegelabends an:
- * - Spalten: Name | Startgebühr | Strafen (Kalle, Stina, etc.) | Spiele (WM, GS) | Summe
- * - Jede Zeile ist ein Spieler
- * - Alle Felder sind direkt editierbar
- * - Neue Spieler können hinzugefügt werden
- * - Spieler können gelöscht werden
+ * This component displays the main table for a bowling evening:
+ * - Columns: Name | Entry Fee | Penalties (Kalle, Stina, etc.) | Games (WM, GS) | Total
+ * - Each row represents a player
+ * - All fields are directly editable
+ * - New players can be added
+ * - Players can be removed
  *
  * Props:
- * - kegelabend: Das Kegelabend-Objekt mit allen Spielern
- * - config: Konfiguration (Strafen, Spielarten, Gebühren)
- * - onUpdate: Callback wenn sich etwas ändert (für Auto-Save)
+ * - kegelabend: The bowling evening object containing all players
+ * - config: Configuration (penalties, game types, fees)
+ * - onUpdate: Callback when something changes (for auto-save)
  */
 
 import React from 'react';
 
-// Material-UI Komponenten für die Tabelle
+// Material-UI components for the table
 import {
   Table,
   TableBody,
@@ -37,23 +37,23 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
 /**
- * Berechnet die Gesamtsumme für einen einzelnen Spieler
+ * Calculates the total amount for a single player
  *
- * Formel: Startgebühr + (Anzahl jeder Strafe × Preis der Strafe)
+ * Formula: Entry Fee + (Count of each penalty × Price of penalty)
  *
- * @param {Object} player - Der Spieler mit seinen Strafen
- * @param {Object} config - Die Konfiguration mit Strafpreisen
- * @returns {number} - Gesamtbetrag in Euro
+ * @param {Object} player - The player with their penalties
+ * @param {Object} config - The configuration with penalty prices
+ * @returns {number} - Total amount in Euro
  */
 const calculatePlayerTotal = (player, config) => {
-  // Starte mit der Grundgebühr (z.B. 6€)
+  // Start with the base entry fee (e.g., 6€)
   let total = config.startgebuehr;
 
-  // Für jede konfigurierte Strafe...
+  // For each configured penalty...
   config.strafen.forEach(strafe => {
-    // Hole die Anzahl dieser Strafe für den Spieler (oder 0 wenn nicht vorhanden)
+    // Get the count of this penalty for the player (or 0 if not present)
     const count = player.strafen[strafe.id] || 0;
-    // Addiere: Anzahl × Preis
+    // Add: count × price
     total += count * strafe.preis;
   });
 
@@ -61,39 +61,39 @@ const calculatePlayerTotal = (player, config) => {
 };
 
 /**
- * Hauptkomponente: Die editierbare Kegelabend-Tabelle
+ * Main component: The editable bowling evening table
  */
 const KegelabendTable = ({ kegelabend, config, onUpdate }) => {
   // ============================================
-  // EVENT HANDLER für Änderungen in der Tabelle
+  // EVENT HANDLERS for changes in the table
   // ============================================
 
   /**
-   * Wird aufgerufen wenn ein Spieler-Feld geändert wird (z.B. Name)
-   * @param {string} playerId - ID des Spielers
-   * @param {string} field - Name des Feldes (z.B. 'name')
-   * @param {any} value - Neuer Wert
+   * Called when a player field is changed (e.g., name)
+   * @param {string} playerId - ID of the player
+   * @param {string} field - Name of the field (e.g., 'name')
+   * @param {any} value - New value
    */
   const handlePlayerChange = (playerId, field, value) => {
-    // Alle Spieler durchgehen und den richtigen aktualisieren
+    // Go through all players and update the correct one
     const updatedSpieler = kegelabend.spieler.map(player => {
       if (player.id === playerId) {
         return { ...player, [field]: value };
       }
       return player;
     });
-    // Änderung nach oben melden (triggert Auto-Save)
+    // Report change upward (triggers auto-save)
     onUpdate({ ...kegelabend, spieler: updatedSpieler });
   };
 
   /**
-   * Wird aufgerufen wenn eine Strafe eingetragen wird
-   * @param {string} playerId - ID des Spielers
-   * @param {string} strafeId - ID der Strafe (z.B. 'kalle')
-   * @param {string} value - Anzahl als String (wird zu Nummer konvertiert)
+   * Called when a penalty is entered
+   * @param {string} playerId - ID of the player
+   * @param {string} strafeId - ID of the penalty (e.g., 'kalle')
+   * @param {string} value - Count as string (converted to number)
    */
   const handleStrafeChange = (playerId, strafeId, value) => {
-    // String zu Nummer konvertieren (leerer String wird zu 0)
+    // Convert string to number (empty string becomes 0)
     const numValue = parseInt(value, 10) || 0;
     const updatedSpieler = kegelabend.spieler.map(player => {
       if (player.id === playerId) {
@@ -108,10 +108,10 @@ const KegelabendTable = ({ kegelabend, config, onUpdate }) => {
   };
 
   /**
-   * Wird aufgerufen wenn ein Spielergebnis eingetragen wird
-   * @param {string} playerId - ID des Spielers
-   * @param {string} spielId - ID der Spielart (z.B. 'wm', 'gs')
-   * @param {string} value - Das Ergebnis (beliebiger Text)
+   * Called when a game result is entered
+   * @param {string} playerId - ID of the player
+   * @param {string} spielId - ID of the game type (e.g., 'wm', 'gs')
+   * @param {string} value - The result (any text)
    */
   const handleSpielChange = (playerId, spielId, value) => {
     const updatedSpieler = kegelabend.spieler.map(player => {
@@ -127,22 +127,22 @@ const KegelabendTable = ({ kegelabend, config, onUpdate }) => {
   };
 
   /**
-   * Fügt einen neuen, leeren Spieler zur Tabelle hinzu
+   * Adds a new, empty player to the table
    */
   const addPlayer = () => {
     const newPlayer = {
-      id: crypto.randomUUID(), // Eindeutige ID generieren
+      id: crypto.randomUUID(), // Generate unique ID
       name: '',
       anwesend: true,
-      strafen: {}, // Noch keine Strafen
-      spiele: {}, // Noch keine Spielergebnisse
+      strafen: {}, // No penalties yet
+      spiele: {}, // No game results yet
     };
     onUpdate({ ...kegelabend, spieler: [...kegelabend.spieler, newPlayer] });
   };
 
   /**
-   * Entfernt einen Spieler aus der Tabelle
-   * @param {string} playerId - ID des zu löschenden Spielers
+   * Removes a player from the table
+   * @param {string} playerId - ID of the player to delete
    */
   const removePlayer = playerId => {
     const updatedSpieler = kegelabend.spieler.filter(p => p.id !== playerId);
@@ -150,10 +150,10 @@ const KegelabendTable = ({ kegelabend, config, onUpdate }) => {
   };
 
   // ============================================
-  // BERECHNUNGEN
+  // CALCULATIONS
   // ============================================
 
-  // Gesamtsumme aller Spieler berechnen (für die Fußzeile)
+  // Calculate grand total of all players (for the footer)
   const grandTotal = kegelabend.spieler.reduce((sum, player) => {
     return sum + calculatePlayerTotal(player, config);
   }, 0);

@@ -1,205 +1,205 @@
 /**
- * storageService.js - Datenspeicherung für das Kegelbuch
+ * storageService.js - Data storage for the Kegelbuch
  *
- * Dieser Service kümmert sich um:
- * - Speichern und Laden von Daten in/aus dem Browser (LocalStorage)
- * - Export aller Daten als JSON-Datei (für Backups)
- * - Import von JSON-Dateien (für Wiederherstellung)
+ * This service handles:
+ * - Saving and loading data to/from browser (LocalStorage)
+ * - Exporting all data as JSON file (for backups)
+ * - Importing JSON files (for restoration)
  *
- * HINWEIS: LocalStorage speichert Daten nur im aktuellen Browser!
- * Für Datensicherung sollte regelmäßig ein JSON-Export gemacht werden.
+ * NOTE: LocalStorage only stores data in the current browser!
+ * For data safety, regular JSON exports should be made.
  *
- * Datenlimit: LocalStorage hat ca. 5-10 MB Speicher (je nach Browser).
- * Das reicht für viele hundert Kegelabende.
+ * Storage limit: LocalStorage has ~5-10 MB storage (varies by browser).
+ * This is enough for many hundreds of bowling evenings.
  */
 
 // ============================================
-// STORAGE KEYS - Schlüssel für LocalStorage
+// STORAGE KEYS - Keys for LocalStorage
 // ============================================
 
 /**
- * Die Schlüssel unter denen die Daten im LocalStorage gespeichert werden.
- * Alle beginnen mit 'kegelbuch_' um Konflikte mit anderen Apps zu vermeiden.
+ * The keys under which data is stored in LocalStorage.
+ * All start with 'kegelbuch_' to avoid conflicts with other apps.
  */
 const STORAGE_KEYS = {
-  KEGELABENDE: 'kegelbuch_kegelabende', // Alle Kegelabende
-  CONFIG: 'kegelbuch_config', // Konfiguration (Strafen, Gebühren)
-  SPIELER: 'kegelbuch_spieler', // Bekannte Spieler (für Autocomplete, später)
+  KEGELABENDE: 'kegelbuch_kegelabende', // All bowling evenings
+  CONFIG: 'kegelbuch_config', // Configuration (penalties, fees)
+  SPIELER: 'kegelbuch_spieler', // Known players (for autocomplete, later)
 };
 
 // ============================================
-// BASIS-FUNKTIONEN
+// BASE FUNCTIONS
 // ============================================
 
 /**
- * Speichert beliebige Daten im LocalStorage
+ * Saves any data to LocalStorage
  *
- * @param {string} key - Der Speicher-Schlüssel
- * @param {any} data - Die zu speichernden Daten (werden zu JSON konvertiert)
- * @returns {boolean} - true wenn erfolgreich, false bei Fehler
+ * @param {string} key - The storage key
+ * @param {any} data - The data to save (will be converted to JSON)
+ * @returns {boolean} - true if successful, false on error
  */
 export const saveToStorage = (key, data) => {
   try {
-    // Daten zu JSON-String konvertieren und speichern
+    // Convert data to JSON string and save
     localStorage.setItem(key, JSON.stringify(data));
     return true;
   } catch (error) {
-    // Fehler kann auftreten wenn LocalStorage voll ist
-    console.error('Fehler beim Speichern:', error);
+    // Error can occur if LocalStorage is full
+    console.error('Error saving to storage:', error);
     return false;
   }
 };
 
 /**
- * Lädt Daten aus dem LocalStorage
+ * Loads data from LocalStorage
  *
- * @param {string} key - Der Speicher-Schlüssel
- * @param {any} defaultValue - Wird zurückgegeben wenn nichts gespeichert ist
- * @returns {any} - Die geladenen Daten oder der Standardwert
+ * @param {string} key - The storage key
+ * @param {any} defaultValue - Returned if nothing is saved
+ * @returns {any} - The loaded data or default value
  */
 export const loadFromStorage = (key, defaultValue = null) => {
   try {
     const data = localStorage.getItem(key);
-    // Wenn Daten existieren: JSON parsen, sonst Standardwert
+    // If data exists: parse JSON, otherwise return default
     return data ? JSON.parse(data) : defaultValue;
   } catch (error) {
-    console.error('Fehler beim Laden:', error);
+    console.error('Error loading from storage:', error);
     return defaultValue;
   }
 };
 
 // ============================================
-// KEGELABENDE - Speichern/Laden
+// BOWLING EVENINGS (Kegelabende) - Save/Load
 // ============================================
 
 /**
- * Speichert alle Kegelabende
- * @param {Array} kegelabende - Array aller Kegelabend-Objekte
+ * Saves all bowling evenings
+ * @param {Array} kegelabende - Array of all bowling evening objects
  */
 export const saveKegelabende = kegelabende => {
   return saveToStorage(STORAGE_KEYS.KEGELABENDE, kegelabende);
 };
 
 /**
- * Lädt alle gespeicherten Kegelabende
- * @returns {Array} - Array aller Kegelabende (oder leeres Array)
+ * Loads all saved bowling evenings
+ * @returns {Array} - Array of all evenings (or empty array)
  */
 export const loadKegelabende = () => {
   return loadFromStorage(STORAGE_KEYS.KEGELABENDE, []);
 };
 
 // ============================================
-// KONFIGURATION - Speichern/Laden
+// CONFIGURATION - Save/Load
 // ============================================
 
 /**
- * Speichert die Konfiguration (Strafen, Gebühren, etc.)
- * @param {Object} config - Das Konfigurations-Objekt
+ * Saves the configuration (penalties, fees, etc.)
+ * @param {Object} config - The configuration object
  */
 export const saveConfig = config => {
   return saveToStorage(STORAGE_KEYS.CONFIG, config);
 };
 
 /**
- * Lädt die gespeicherte Konfiguration
- * @param {Object} defaultConfig - Standardwerte falls nichts gespeichert ist
- * @returns {Object} - Die Konfiguration
+ * Loads the saved configuration
+ * @param {Object} defaultConfig - Default values if nothing is saved
+ * @returns {Object} - The configuration
  */
 export const loadConfig = defaultConfig => {
   return loadFromStorage(STORAGE_KEYS.CONFIG, defaultConfig);
 };
 
 // ============================================
-// SPIELER-STAMMDATEN - Für spätere Features
+// PLAYER MASTER DATA - For future features
 // ============================================
 
 /**
- * Speichert bekannte Spieler (für Autocomplete-Feature)
- * @param {Array} spieler - Array von Spieler-Objekten
+ * Saves known players (for autocomplete feature)
+ * @param {Array} spieler - Array of player objects
  */
 export const saveSpieler = spieler => {
   return saveToStorage(STORAGE_KEYS.SPIELER, spieler);
 };
 
 /**
- * Lädt bekannte Spieler
- * @returns {Array} - Array von Spielern (oder leeres Array)
+ * Loads known players
+ * @returns {Array} - Array of players (or empty array)
  */
 export const loadSpieler = () => {
   return loadFromStorage(STORAGE_KEYS.SPIELER, []);
 };
 
 // ============================================
-// JSON EXPORT - Backup erstellen
+// JSON EXPORT - Create backup
 // ============================================
 
 /**
- * Exportiert ALLE Daten als JSON-Datei zum Download
+ * Exports ALL data as JSON file for download
  *
- * Erstellt eine Datei mit Namen: kegelbuch_export_YYYY-MM-DD.json
- * Die Datei enthält:
- * - Alle Kegelabende
- * - Die Konfiguration
- * - Bekannte Spieler
- * - Export-Datum und Version
+ * Creates a file named: kegelbuch_export_YYYY-MM-DD.json
+ * The file contains:
+ * - All bowling evenings
+ * - The configuration
+ * - Known players
+ * - Export date and version
  *
- * Diese Datei kann später wieder importiert werden.
+ * This file can be imported again later.
  */
 export const exportToJSON = () => {
-  // Alle Daten zusammensammeln
+  // Gather all data
   const data = {
     kegelabende: loadKegelabende(),
     config: loadFromStorage(STORAGE_KEYS.CONFIG),
     spieler: loadSpieler(),
-    exportDatum: new Date().toISOString(), // Wann wurde exportiert?
-    version: '1.0', // Datenformat-Version (für zukünftige Kompatibilität)
+    exportDatum: new Date().toISOString(), // When was it exported?
+    version: '1.0', // Data format version (for future compatibility)
   };
 
-  // JSON-String erstellen (mit Einrückung für Lesbarkeit)
+  // Create JSON string (with indentation for readability)
   const jsonString = JSON.stringify(data, null, 2);
 
-  // Blob (Binary Large Object) erstellen
+  // Create Blob (Binary Large Object)
   const blob = new Blob([jsonString], { type: 'application/json' });
 
-  // Download-URL erstellen
+  // Create download URL
   const url = URL.createObjectURL(blob);
 
-  // Unsichtbaren Link erstellen und klicken (startet Download)
+  // Create invisible link and click it (starts download)
   const link = document.createElement('a');
   link.href = url;
   link.download = `kegelbuch_export_${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(link);
   link.click();
 
-  // Aufräumen
+  // Cleanup
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
 
 // ============================================
-// JSON IMPORT - Backup wiederherstellen
+// JSON IMPORT - Restore backup
 // ============================================
 
 /**
- * Importiert Daten aus einer JSON-Datei
+ * Imports data from a JSON file
  *
- * ACHTUNG: Überschreibt alle vorhandenen Daten!
+ * WARNING: Overwrites all existing data!
  *
- * @param {File} file - Die JSON-Datei vom File-Input
- * @returns {Promise} - Resolved mit den importierten Daten
+ * @param {File} file - The JSON file from file input
+ * @returns {Promise} - Resolves with the imported data
  */
 export const importFromJSON = file => {
   return new Promise((resolve, reject) => {
-    // FileReader zum Lesen der Datei
+    // FileReader for reading the file
     const reader = new FileReader();
 
-    // Wenn Datei gelesen wurde...
+    // When file is read...
     reader.onload = event => {
       try {
-        // JSON parsen
+        // Parse JSON
         const data = JSON.parse(event.target.result);
 
-        // Daten in LocalStorage speichern (wenn vorhanden)
+        // Save data to LocalStorage (if present)
         if (data.kegelabende) {
           saveKegelabende(data.kegelabende);
         }
@@ -210,34 +210,34 @@ export const importFromJSON = file => {
           saveSpieler(data.spieler);
         }
 
-        // Erfolg! Daten zurückgeben
+        // Success! Return data
         resolve(data);
       } catch (error) {
-        // Ungültiges JSON
-        reject(new Error('Ungültige JSON-Datei'));
+        // Invalid JSON
+        reject(new Error('Invalid JSON file'));
       }
     };
 
-    // Bei Lesefehler
-    reader.onerror = () => reject(new Error('Fehler beim Lesen der Datei'));
+    // On read error
+    reader.onerror = () => reject(new Error('Error reading file'));
 
-    // Datei als Text lesen (startet den Prozess)
+    // Read file as text (starts the process)
     reader.readAsText(file);
   });
 };
 
 // ============================================
-// DATEN LÖSCHEN
+// DELETE DATA
 // ============================================
 
 /**
- * Löscht ALLE gespeicherten Daten
+ * Deletes ALL saved data
  *
- * ACHTUNG: Diese Funktion löscht unwiderruflich alle Daten!
- * Sollte nur mit Bestätigung des Benutzers aufgerufen werden.
+ * WARNING: This function permanently deletes all data!
+ * Should only be called with user confirmation.
  */
 export const clearAllData = () => {
-  // Jeden Storage-Key einzeln löschen
+  // Delete each storage key individually
   Object.values(STORAGE_KEYS).forEach(key => {
     localStorage.removeItem(key);
   });
