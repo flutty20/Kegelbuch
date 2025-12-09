@@ -1,26 +1,27 @@
-# 📚 Kegelbuch — Technische Dokumentation
+# 📚 Kegelbuch — Technical Documentation
 
-Komplette technische Dokumentation für das Kegelbuch-Projekt.
+Complete technical documentation for the Kegelbuch project.  
+*Komplette technische Dokumentation für das Kegelbuch-Projekt.*
 
 ---
 
-## Inhaltsverzeichnis
+## Table of Contents
 
-1. [Projektübersicht](#1-projektübersicht)
-2. [Technologie-Stack](#2-technologie-stack)
-3. [Projektstruktur](#3-projektstruktur)
+1. [Project Overview](#1-project-overview)
+2. [Tech Stack](#2-tech-stack)
+3. [Project Structure](#3-project-structure)
 4. [CI/CD Pipeline](#4-cicd-pipeline)
-5. [Qodana Code-Analyse](#5-qodana-code-analyse)
+5. [Qodana Code Analysis](#5-qodana-code-analysis)
 6. [Auto-Fix & Linting](#6-auto-fix--linting)
 7. [Troubleshooting](#7-troubleshooting)
 
 ---
 
-## 1. Projektübersicht
+## 1. Project Overview
 
-Das Kegelbuch ist eine moderne Web-Applikation zur digitalen Verwaltung von Kegelabenden, Spielern und Ergebnissen.
+The Kegelbuch is a modern web application for digital management of bowling evenings, players, and results.
 
-### Architektur
+### Architecture
 
 ```
 ┌─────────────────────────────────────────┐
@@ -41,7 +42,7 @@ Das Kegelbuch ist eine moderne Web-Applikation zur digitalen Verwaltung von Kege
 └─────────────────────────────────────────┘
 ```
 
-### Build-Prozess
+### Build Process
 
 ```
 Source Files (.jsx, .js)  →  Vite (esbuild)  →  dist/  →  GitHub Pages
@@ -49,9 +50,9 @@ Source Files (.jsx, .js)  →  Vite (esbuild)  →  dist/  →  GitHub Pages
 
 ---
 
-## 2. Technologie-Stack
+## 2. Tech Stack
 
-| Bereich | Technologie | Version |
+| Area | Technology | Version |
 |---------|-------------|---------|
 | Frontend Framework | React | 18.2 |
 | Build Tool | Vite | 5.x |
@@ -66,7 +67,7 @@ Source Files (.jsx, .js)  →  Vite (esbuild)  →  dist/  →  GitHub Pages
 
 **Production:**
 - `react`, `react-dom` — UI Framework
-- `@mui/material`, `@mui/icons-material` — UI Komponenten
+- `@mui/material`, `@mui/icons-material` — UI Components
 - `@emotion/react`, `@emotion/styled`, `@emotion/cache` — Styling
 
 **Development:**
@@ -76,7 +77,7 @@ Source Files (.jsx, .js)  →  Vite (esbuild)  →  dist/  →  GitHub Pages
 
 ---
 
-## 3. Projektstruktur
+## 3. Project Structure
 
 ```
 Kegelbuch/
@@ -84,34 +85,136 @@ Kegelbuch/
 │   ├── pages.yml              # Build & Deploy Pipeline
 │   └── qodana.yml             # Code-Analyse Pipeline
 ├── src/
-│   ├── App.jsx                # Haupt-React-Komponente
-│   ├── main.jsx               # React Entry Point
-│   └── theme.js               # MUI Theme Definition
-├── index.html                 # HTML Entry Point
+│   ├── components/
+│   │   └── KegelabendTable.jsx  # Editable table component
+│   ├── config/
+│   │   └── defaultConfig.js     # Default penalties, fees, game types
+│   ├── services/
+│   │   └── storageService.js    # LocalStorage & JSON import/export
+│   ├── App.jsx                # Main React component
+│   ├── main.jsx               # React entry point
+│   └── theme.js               # MUI Theme definition
+├── index.html                 # HTML entry point
 ├── package.json               # Dependencies & Scripts
-├── vite.config.js             # Vite Build-Konfiguration
-├── .eslintrc.cjs              # ESLint Regeln
-├── .prettierrc                # Prettier Konfiguration
-├── .qodana.yaml               # Qodana Konfiguration
-├── .gitignore                 # Ignorierte Dateien
-├── README.md                  # Projektübersicht
-└── DOCUMENTATION.md           # Diese Datei
+├── vite.config.js             # Vite build configuration
+├── .eslintrc.cjs              # ESLint rules
+├── .prettierrc                # Prettier configuration
+├── .qodana.yaml               # Qodana configuration
+├── .gitignore                 # Ignored files
+├── README.md                  # Project overview
+├── TODO.md                    # Feature roadmap
+└── DOCUMENTATION.md           # This file
+```
+
+### Data Model
+
+```javascript
+// Kegelabend (Bowling Evening)
+{
+  id: "uuid",
+  datum: "2025-12-09",
+  spieler: [...],
+  notizen: "",
+  abgeschlossen: false
+}
+
+// Spieler (Player)
+{
+  id: "uuid",
+  name: "Max",
+  anwesend: true,
+  strafen: { kalle: 2, stina: 1 },
+  spiele: { wm: "120", gs: "Win" }
+}
+```
+
+### Penalty Types
+
+| ID | Label | Price | Type |
+|----|-------|-------|------|
+| kalle | Kalle | 0.50€ | Normal (player pays) |
+| stina | Stina | 0.50€ | Normal |
+| verspaetung | Verspätung | 1.00€ | Normal |
+| verloren | Spiel verloren | 0.50€ | Normal |
+| kranz | Kranz | 0.50€ | **Inverted** (others pay) |
+| volle | Volle | 0.50€ | **Inverted** (others pay) |
+
+> **Note:** Penalties can be added, edited, and deleted via the Settings menu.
+
+### App Features
+
+#### Settings Menu (⚙️)
+Top right in header:
+- **Player Master Data** — Create and manage players
+- **Configure Prices** — Adjust entry fee and penalty prices, add new penalties
+
+#### Add Player
+When clicking "+ Spieler hinzufügen":
+1. Dropdown with all saved players
+2. "Neuer Spieler..." opens dialog
+3. New player is added to master data AND current evening
+
+#### Table Features
+- **Nr.** — Automatic row numbering
+- **Visual Separation** — Lines between penalties, games, and total
+- **Auto-Save** — Changes saved automatically
+- **Colored Total** — Highlighted sum column
+
+### Code Patterns & Performance
+
+#### React Hooks Used
+| Hook | Purpose |
+|------|---------|
+| `useState` | Local component state |
+| `useEffect` | Auto-save, data loading |
+| `useCallback` | Memoized event handlers |
+| `useMemo` | Cached calculations (grandTotal) |
+
+#### Key Functions
+```javascript
+// Generic player update (DRY pattern)
+const updatePlayer = useCallback((playerId, updateFn) => {
+  const updated = kegelabend.spieler.map(p =>
+    p.id === playerId ? updateFn(p) : p
+  );
+  onUpdate({ ...kegelabend, spieler: updated });
+}, [kegelabend, onUpdate]);
+
+// Functional state update (safe async)
+setKegelabende(prev => {
+  const updated = [...prev];
+  // modify...
+  saveKegelabende(updated);
+  return updated;
+});
+
+// Penalty calculation with reduce
+const calculatePlayerTotal = (player, config, allPlayers) => 
+  config.strafen.reduce((total, strafe) => {
+    if (strafe.inverted) {
+      const othersCount = allPlayers
+        .filter(p => p.id !== player.id)
+        .reduce((sum, p) => sum + (p.strafen[strafe.id] || 0), 0);
+      return total + othersCount * strafe.preis;
+    }
+    return total + (player.strafen[strafe.id] || 0) * strafe.preis;
+  }, config.startgebuehr);
 ```
 
 ---
 
 ## 4. CI/CD Pipeline
 
-Das Projekt nutzt zwei GitHub Actions Workflows.
+The project uses two GitHub Actions workflows.
 
 ### 4.1 Deploy Workflow (`pages.yml`)
 
-**Trigger:** Push auf `main`, manuell
+**Trigger:** Push to `main`, manual
 
-| Schritt | Beschreibung |
-|---------|--------------|
-| Checkout | Repository auschecken |
-| Setup Node | Node.js 18 einrichten |
+| Step | Description |
+|------|-------------|
+| Checkout | Clone repository |
+| Setup Node | Configure Node.js 18 |
 | Install | `npm ci` |
 | Build | `npm run build` |
 | Deploy | GitHub Pages |
@@ -120,26 +223,26 @@ Das Projekt nutzt zwei GitHub Actions Workflows.
 
 ### 4.2 Qodana Workflow (`qodana.yml`)
 
-**Trigger:** Push/PR auf `main`, manuell
+**Trigger:** Push/PR to `main`, manual
 
-| Schritt | Beschreibung |
-|---------|--------------|
-| Checkout | Repository mit History |
-| Setup Node | Node.js 18 einrichten |
+| Step | Description |
+|------|-------------|
+| Checkout | Clone repository with history |
+| Setup Node | Configure Node.js 18 |
 | Install | `npm ci` |
-| Scan | Qodana Code-Analyse |
+| Scan | Qodana code analysis |
 
-**Ergebnisse:** [qodana.cloud](https://qodana.cloud)
+**Results:** [qodana.cloud](https://qodana.cloud)
 
-### Workflow manuell starten
+### Run Workflow Manually
 
-1. **Actions** → Workflow wählen → **Run workflow**
+1. **Actions** → Select workflow → **Run workflow**
 
 ---
 
-## 5. Qodana Code-Analyse
+## 5. Qodana Code Analysis
 
-### Konfiguration (`.qodana.yaml`)
+### Configuration (`.qodana.yaml`)
 
 ```yaml
 image: jetbrains/qodana-js:2024.3
@@ -163,16 +266,16 @@ cache:
   enabled: true
 ```
 
-### Token einrichten
+### Setup Token
 
-1. Projekt auf [qodana.cloud](https://qodana.cloud) erstellen
-2. Project Token kopieren
-3. GitHub Secret anlegen:
+1. Create project on [qodana.cloud](https://qodana.cloud)
+2. Copy Project Token
+3. Create GitHub Secret:
    - **Settings** → **Secrets and variables** → **Actions**
    - Name: `QODANA_TOKEN_1646119969`
-   - Value: *Token einfügen*
+   - Value: *Paste token*
 
-### Lokal ausführen
+### Run Locally
 
 ```bash
 docker run --rm -it \
@@ -181,12 +284,12 @@ docker run --rm -it \
   jetbrains/qodana-js:2024.3
 ```
 
-### Baseline erstellen
+### Create Baseline
 
-Um nur neue Probleme zu melden:
+To only report new issues:
 
 ```yaml
-# In .qodana.yaml hinzufügen
+# Add to .qodana.yaml
 baseline: qodana.sarif.json
 ```
 
@@ -194,15 +297,15 @@ baseline: qodana.sarif.json
 
 ## 6. Auto-Fix & Linting
 
-### Verfügbare Befehle
+### Available Commands
 
-| Befehl | Tool | Beschreibung |
-|--------|------|--------------|
-| `npm run lint` | ESLint | Code prüfen |
-| `npm run lint:fix` | ESLint | Fehler automatisch beheben |
-| `npm run format` | Prettier | Code formatieren |
+| Command | Tool | Description |
+|---------|------|-------------|
+| `npm run lint` | ESLint | Check code |
+| `npm run lint:fix` | ESLint | Auto-fix errors |
+| `npm run format` | Prettier | Format code |
 
-### Prettier Konfiguration (`.prettierrc`)
+### Prettier Configuration (`.prettierrc`)
 
 ```json
 {
@@ -217,7 +320,7 @@ baseline: qodana.sarif.json
 }
 ```
 
-### ESLint Konfiguration (`.eslintrc.cjs`)
+### ESLint Configuration (`.eslintrc.cjs`)
 
 ```javascript
 module.exports = {
@@ -228,13 +331,13 @@ module.exports = {
 };
 ```
 
-### IDE-Integration
+### IDE Integration
 
-**VS Code** — Extensions installieren:
+**VS Code** — Install extensions:
 - Prettier - Code formatter
 - ESLint
 
-**Einstellungen** (`.vscode/settings.json`):
+**Settings** (`.vscode/settings.json`):
 ```json
 {
   "editor.formatOnSave": true,
@@ -248,52 +351,52 @@ module.exports = {
 
 ### Installation
 
-| Problem | Lösung |
-|---------|--------|
-| `npm ci` schlägt fehl | `npm install` ausführen |
-| Module nicht gefunden | `npm install` neu ausführen |
+| Problem | Solution |
+|---------|----------|
+| `npm ci` fails | Run `npm install` |
+| Module not found | Run `npm install` again |
 
 ### Build
 
-| Problem | Lösung |
-|---------|--------|
+| Problem | Solution |
+|---------|----------|
 | terser not found | `minify: 'esbuild'` in vite.config.js |
-| 404 auf GitHub Pages | `base` Pfad in vite.config.js prüfen |
-| Port 5173 belegt | `npm run dev -- --port 3000` |
+| 404 on GitHub Pages | Check `base` path in vite.config.js |
+| Port 5173 in use | `npm run dev -- --port 3000` |
 
 ### Linting
 
-| Problem | Lösung |
-|---------|--------|
-| Fehler in dist/ | `ignorePatterns` in .eslintrc.cjs prüfen |
-| jsxBracketSameLine deprecated | Durch `bracketSameLine` ersetzen |
+| Problem | Solution |
+|---------|----------|
+| Errors in dist/ | Check `ignorePatterns` in .eslintrc.cjs |
+| jsxBracketSameLine deprecated | Replace with `bracketSameLine` |
 
 ### CI/CD
 
-| Problem | Lösung |
-|---------|--------|
-| Workflow failed | Lokal `npm run build` testen |
-| Qodana Token ungültig | Neuen Token auf qodana.cloud erstellen |
-| Alte Version auf Pages | Hard Refresh (Ctrl+Shift+R) |
+| Problem | Solution |
+|---------|----------|
+| Workflow failed | Test `npm run build` locally |
+| Qodana Token invalid | Create new token on qodana.cloud |
+| Old version on Pages | Hard Refresh (Ctrl+Shift+R) |
 
-### Schnelle Diagnose
+### Quick Diagnosis
 
 ```bash
-# Alle Checks
+# All checks
 npm run lint && npm run build
 
-# Reset bei Problemen
+# Reset on problems
 rm -rf node_modules package-lock.json
 npm install
 ```
 
 ---
 
-## Weiterführende Links
+## Further Links
 
-- [Vite Dokumentation](https://vitejs.dev/)
-- [React Dokumentation](https://react.dev/)
-- [Material-UI Dokumentation](https://mui.com/)
-- [Qodana Dokumentation](https://www.jetbrains.com/help/qodana/)
-- [ESLint Dokumentation](https://eslint.org/)
-- [Prettier Dokumentation](https://prettier.io/)
+- [Vite Documentation](https://vitejs.dev/)
+- [React Documentation](https://react.dev/)
+- [Material-UI Documentation](https://mui.com/)
+- [Qodana Documentation](https://www.jetbrains.com/help/qodana/)
+- [ESLint Documentation](https://eslint.org/)
+- [Prettier Documentation](https://prettier.io/)

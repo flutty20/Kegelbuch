@@ -15,5 +15,7 @@ module.exports = {
     },
   },
   ignorePatterns: ['dist/', 'node_modules/', '*.min.js'],
-  rules: {},
+  rules: {
+    'react/prop-types': 'off', // Using JS without TypeScript, prop-types optional
+  },
 };

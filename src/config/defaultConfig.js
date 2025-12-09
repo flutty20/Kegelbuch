@@ -33,11 +33,14 @@ export const defaultConfig = {
   // - label: Short name (displayed in table)
   // - description: Description (shown as tooltip)
   // - preis: Cost per penalty in Euro
+  // - inverted: If true, ALL OTHER players pay when this is thrown (e.g., Kranz, Volle)
   strafen: [
     { id: 'kalle', label: 'Kalle', description: 'Ball ins Aus', preis: 0.5 },
     { id: 'stina', label: 'Stina', description: 'Mittlere 3 Pins', preis: 0.5 },
     { id: 'verspaetung', label: 'Verspätung', description: 'Zu spät gekommen', preis: 1.0 },
     { id: 'verloren', label: 'Spiel verloren', description: 'Verlorenes Spiel', preis: 0.5 },
+    { id: 'kranz', label: 'Kranz', description: 'Kranz geworfen - alle anderen zahlen', preis: 0.5, inverted: true },
+    { id: 'volle', label: 'Volle', description: 'Volle geworfen - alle anderen zahlen', preis: 0.5, inverted: true },
   ],
 
   // ============================================
