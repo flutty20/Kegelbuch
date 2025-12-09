@@ -1,0 +1,102 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run auto-fixes (Prettier + ESLint)
+        run: |
+          npm run format || true
+          npm run lint:fix || true
+
+      - name: Create branch and commit autofixes
+        id: commit_autofix
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            BRANCH_NAME="autofix/${{ github.run_id }}"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -b "$BRANCH_NAME"
+            git add .
+            git commit -m "chore: apply automatic fixes [skip ci]" || echo "No commit"
+            echo "AUTOFIX_BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+          else
+            echo "NO_CHANGES=true" >> $GITHUB_ENV
+          fi
+
+      - name: Create Pull Request for autofixes
+        if: env.NO_CHANGES != 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: apply automatic fixes [skip ci]"
+          branch: ${{ env.AUTOFIX_BRANCH }}
+          title: "chore: apply automatic fixes"
+          body: |
+            This PR contains automatic code style and lint fixes applied by CI (Prettier + ESLint).
+            Please review and merge if acceptable.
+
+      - name: Run Qodana code inspection
+        uses: jetbrains/qodana-action/analyze@v2024.3
+        with:
+          # Use the JavaScript Qodana image to analyze JS/TS projects
+          image: jetbrains/qodana-js:2024.3
+          project-dir: .
+          output-path: qodana-results
+          # fail-threshold: number of new issues allowed (set to '0' to fail on any issue)
+          fail-threshold: '0'
+
+      - name: Upload Qodana report
+        uses: actions/upload-artifact@v4
+        with:
+          name: qodana-report
+          path: qodana-results
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2

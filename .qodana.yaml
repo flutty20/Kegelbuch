@@ -1,0 +1,30 @@
+# Qodana configuration for JavaScript project
+# This file configures the Qodana runner used by the GitHub Action.
+image: jetbrains/qodana-js:2024.3
+project-dir: .
+output-path: qodana-results
+
+# Optional: choose a Qodana profile to run (e.g. 'Default', 'Strict', or a custom profile name)
+profile:
+  name: Default
+
+# Exclude common folders to speed up analysis
+exclude:
+  - node_modules
+  - .git
+  - dist
+
+# Tools and integrations
+tools:
+  eslint:
+    enabled: true
+    # Use project ESLint config if present
+    config: .eslintrc.cjs
+
+# Baseline file (optional). Create this after a first clean run if you
+# want to ignore existing issues and only fail on new ones.
+# baseline: qodana-baseline.zip
+
+# Cache settings
+cache:
+  enabled: true

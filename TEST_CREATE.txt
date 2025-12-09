@@ -1,0 +1,1 @@
+Dieser Test prüft, ob Dateien im Ordner sichtbar sind.
