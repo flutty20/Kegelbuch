@@ -1,6 +1,6 @@
 # 🎳 Kegelbuch
 
-Digital bowling book for managing bowling evenings, players, and results.  
+Digital 9 pin bowling book for managing 9 pin bowling evenings, players, and results.  
 *Digitales Kegelbuch zur Verwaltung von Kegelabenden, Spielern und Ergebnissen.*
 
 ## Features
