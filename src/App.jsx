@@ -1,17 +1,17 @@
 /**
- * App.jsx - Hauptkomponente der Kegelbuch-Anwendung
+ * App.jsx - Main component of the Kegelbuch application
  *
- * Diese Datei ist der Einstiegspunkt der App und verwaltet:
- * - Den aktuell ausgewählten Kegelabend
- * - Die Liste aller gespeicherten Kegelabende
- * - Die Konfiguration (Strafen, Gebühren, etc.)
- * - Auto-Save Funktionalität
- * - JSON Import/Export
+ * This file is the entry point of the app and manages:
+ * - The currently selected bowling evening (Kegelabend)
+ * - The list of all saved bowling evenings
+ * - The configuration (penalties, fees, etc.)
+ * - Auto-save functionality
+ * - JSON import/export
  */
 
 import React, { useState, useEffect } from 'react';
 
-// Material-UI Komponenten für das Layout und Design
+// Material-UI components for layout and design
 import {
   Container,
   Typography,
@@ -24,12 +24,12 @@ import {
   Alert,
 } from '@mui/material';
 
-// Icons für die Buttons
+// Icons for buttons
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import AddIcon from '@mui/icons-material/Add';
 
-// Eigene Komponenten und Services
+// Custom components and services
 import KegelabendTable from './components/KegelabendTable';
 import { defaultConfig, createEmptyKegelabend } from './config/defaultConfig';
 import {
@@ -42,35 +42,35 @@ import {
 } from './services/storageService';
 
 /**
- * Haupt-App Komponente
- * Rendert die gesamte Anwendung und verwaltet den globalen State
+ * Main App Component
+ * Renders the entire application and manages global state
  */
 function App() {
   // ============================================
-  // STATE DEFINITIONEN
+  // STATE DEFINITIONS
   // ============================================
 
-  // Konfiguration mit Strafen, Gebühren, Spielarten
+  // Configuration with penalties, fees, game types
   const [config, setConfig] = useState(defaultConfig);
 
-  // Liste aller gespeicherten Kegelabende
+  // List of all saved bowling evenings
   const [kegelabende, setKegelabende] = useState([]);
 
-  // Der aktuell angezeigte/bearbeitete Kegelabend
+  // The currently displayed/edited bowling evening
   const [currentAbend, setCurrentAbend] = useState(null);
 
-  // Für Benachrichtigungen (Toast-Messages)
+  // For notifications (toast messages)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   // ============================================
-  // EFFECTS (Seiteneffekte)
+  // EFFECTS (Side Effects)
   // ============================================
 
   /**
-   * Beim Start der App:
-   * - Lade gespeicherte Konfiguration aus LocalStorage
-   * - Lade alle gespeicherten Kegelabende
-   * - Zeige den letzten Kegelabend an (falls vorhanden)
+   * On app startup:
+   * - Load saved configuration from LocalStorage
+   * - Load all saved bowling evenings
+   * - Display the most recent evening (if exists)
    */
   useEffect(() => {
     const savedConfig = loadConfig(defaultConfig);
@@ -78,45 +78,45 @@ function App() {
     setConfig(savedConfig);
     setKegelabende(savedAbende);
 
-    // Automatisch den letzten Abend laden
+    // Automatically load the most recent evening
     if (savedAbende.length > 0) {
       setCurrentAbend(savedAbende[savedAbende.length - 1]);
     }
   }, []);
 
   /**
-   * AUTO-SAVE: Bei jeder Änderung am aktuellen Kegelabend
-   * wird automatisch gespeichert (kein manuelles Speichern nötig)
+   * AUTO-SAVE: On every change to the current bowling evening,
+   * data is automatically saved (no manual save needed)
    */
   useEffect(() => {
-    // Nichts tun wenn kein Abend ausgewählt ist
+    // Do nothing if no evening is selected
     if (!currentAbend) return;
 
-    // Prüfen ob der Abend schon existiert oder neu ist
+    // Check if evening already exists or is new
     const existingIndex = kegelabende.findIndex(a => a.id === currentAbend.id);
     let updatedAbende;
 
     if (existingIndex >= 0) {
-      // Existierenden Abend aktualisieren
+      // Update existing evening
       updatedAbende = [...kegelabende];
       updatedAbende[existingIndex] = currentAbend;
     } else {
-      // Neuen Abend zur Liste hinzufügen
+      // Add new evening to list
       updatedAbende = [...kegelabende, currentAbend];
     }
 
-    // State und LocalStorage aktualisieren
+    // Update state and LocalStorage
     setKegelabende(updatedAbende);
     saveKegelabende(updatedAbende);
     saveConfig(config);
   }, [currentAbend]);
 
   // ============================================
-  // EVENT HANDLER
+  // EVENT HANDLERS
   // ============================================
 
   /**
-   * Erstellt einen neuen, leeren Kegelabend mit heutigem Datum
+   * Creates a new, empty bowling evening with today's date
    */
   const handleNewAbend = () => {
     const newAbend = createEmptyKegelabend();
@@ -124,17 +124,17 @@ function App() {
   };
 
   /**
-   * Wird aufgerufen wenn sich Daten im Kegelabend ändern
-   * (z.B. neuer Spieler, Strafe eingetragen, etc.)
-   * Triggert automatisch den Auto-Save Effect
+   * Called when data in the bowling evening changes
+   * (e.g., new player, penalty entered, etc.)
+   * Automatically triggers the auto-save effect
    */
   const handleUpdateAbend = updatedAbend => {
     setCurrentAbend(updatedAbend);
   };
 
   /**
-   * Exportiert alle Daten als JSON-Datei zum Download
-   * Gut für Backups oder Übertragung auf anderen PC
+   * Exports all data as JSON file for download
+   * Useful for backups or transferring to another PC
    */
   const handleExport = () => {
     exportToJSON();
@@ -142,8 +142,8 @@ function App() {
   };
 
   /**
-   * Importiert Daten aus einer JSON-Datei
-   * Überschreibt die aktuellen Daten!
+   * Imports data from a JSON file
+   * WARNING: Overwrites current data!
    */
   const handleImport = async event => {
     const file = event.target.files[0];
@@ -153,7 +153,7 @@ function App() {
       const data = await importFromJSON(file);
       setKegelabende(data.kegelabende || []);
       if (data.config) setConfig(data.config);
-      // Den letzten importierten Abend anzeigen
+      // Display the most recently imported evening
       if (data.kegelabende?.length > 0) {
         setCurrentAbend(data.kegelabende[data.kegelabende.length - 1]);
       }
@@ -161,20 +161,20 @@ function App() {
     } catch (error) {
       setSnackbar({ open: true, message: 'Import fehlgeschlagen!', severity: 'error' });
     }
-    // Input zurücksetzen damit gleiche Datei erneut gewählt werden kann
+    // Reset input so the same file can be selected again
     event.target.value = '';
   };
 
   // ============================================
-  // RENDER - Was auf dem Bildschirm angezeigt wird
+  // RENDER - What is displayed on screen
   // ============================================
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
       {/* ==========================================
-          HEADER-BEREICH
-          - Titel der App
-          - Aktions-Buttons (Neuer Abend, Export, Import)
+          HEADER SECTION
+          - App title
+          - Action buttons (New Evening, Export, Import)
           ========================================== */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
@@ -182,7 +182,7 @@ function App() {
             🎳 Kegelbuch
           </Typography>
           <Stack direction="row" spacing={1}>
-            {/* Button: Neuen leeren Kegelabend erstellen */}
+            {/* Button: Create new empty bowling evening */}
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -190,11 +190,11 @@ function App() {
             >
               Neuer Abend
             </Button>
-            {/* Button: Alle Daten als JSON exportieren */}
+            {/* Button: Export all data as JSON */}
             <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExport}>
               Export
             </Button>
-            {/* Button: JSON-Datei importieren (verstecktes File-Input) */}
+            {/* Button: Import JSON file (hidden file input) */}
             <Button variant="outlined" component="label" startIcon={<FileUploadIcon />}>
               Import
               <input type="file" hidden accept=".json" onChange={handleImport} />
@@ -204,13 +204,13 @@ function App() {
       </Paper>
 
       {/* ==========================================
-          HAUPTBEREICH
-          - Zeigt den aktuellen Kegelabend als Tabelle
-          - Oder eine Willkommensnachricht wenn kein Abend ausgewählt
+          MAIN CONTENT AREA
+          - Shows current bowling evening as table
+          - Or welcome message if no evening selected
           ========================================== */}
       {currentAbend ? (
         <Paper sx={{ p: 2 }}>
-          {/* Datum-Auswahl für den Kegelabend */}
+          {/* Date picker for the bowling evening */}
           <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
             <Typography variant="h6">Kegelabend vom</Typography>
             <TextField
@@ -223,7 +223,7 @@ function App() {
             />
           </Stack>
           <Divider sx={{ mb: 2 }} />
-          {/* Die eigentliche Tabelle mit Spielern, Strafen, etc. */}
+          {/* The actual table with players, penalties, etc. */}
           <KegelabendTable
             kegelabend={currentAbend}
             config={config}
@@ -231,7 +231,7 @@ function App() {
           />
         </Paper>
       ) : (
-        // Willkommens-Ansicht wenn noch kein Abend ausgewählt
+        // Welcome view when no evening is selected
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Kein Kegelabend ausgewählt
@@ -248,9 +248,9 @@ function App() {
       )}
 
       {/* ==========================================
-          LISTE BISHERIGER KEGELABENDE
-          - Buttons zum schnellen Wechseln zwischen Abenden
-          - Nur sichtbar wenn mindestens ein Abend existiert
+          PREVIOUS EVENINGS LIST
+          - Buttons for quickly switching between evenings
+          - Only visible if at least one evening exists
           ========================================== */}
       {kegelabende.length > 0 && (
         <Paper sx={{ p: 2, mt: 3 }}>
@@ -261,12 +261,12 @@ function App() {
             {kegelabende.map(abend => (
               <Button
                 key={abend.id}
-                // Aktuell ausgewählter Abend ist hervorgehoben (contained)
+                // Currently selected evening is highlighted (contained)
                 variant={currentAbend?.id === abend.id ? 'contained' : 'outlined'}
                 size="small"
                 onClick={() => setCurrentAbend(abend)}
               >
-                {/* Datum im deutschen Format anzeigen (TT.MM.JJJJ) */}
+                {/* Display date in German format (DD.MM.YYYY) */}
                 {new Date(abend.datum).toLocaleDateString('de-DE')}
               </Button>
             ))}
@@ -275,9 +275,9 @@ function App() {
       )}
 
       {/* ==========================================
-          BENACHRICHTIGUNGEN (Snackbar/Toast)
-          - Zeigt Erfolgs- oder Fehlermeldungen an
-          - Verschwindet automatisch nach 3 Sekunden
+          NOTIFICATIONS (Snackbar/Toast)
+          - Shows success or error messages
+          - Auto-hides after 3 seconds
           ========================================== */}
       <Snackbar
         open={snackbar.open}
