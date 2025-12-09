@@ -13,5 +13,6 @@ Wesentliche Schritte (Build‑Job):
 - Deploy‑Job: `actions/deploy-pages@v2` deployed die hochgeladene `dist/` nach GitHub Pages.
 
 Wichtige Hinweise:
+
 - Der Workflow ist aktuell so konfiguriert, dass Auto‑Fixes direkt auf `main` gepusht werden. Empfehlung: aktiviere Branch‑Protection oder ändere das Verhalten, sodass stattdessen ein Pull Request erstellt wird (siehe `autofix.md`).
 - Permissions: `contents: write` ist gesetzt, damit der Workflow committen/pushen darf.

@@ -22,4 +22,5 @@ CI‑Verhalten (wie im Workflow definiert):
 - Wenn Änderungen erzeugt werden, committet der Job sie automatisch mit der Nachricht `chore: apply automatic fixes [skip ci]` und pusht sie zurück zum aktuellen Branch. `[skip ci]` verhindert, dass der Commit erneut den Workflow triggert.
 
 Optionen:
+
 - Wenn du nicht möchtest, dass Änderungen direkt nach `main` gepusht werden, kann die Pipeline so angepasst werden, dass stattdessen ein Pull Request erstellt wird (empfohlen für geschützte Branches).
