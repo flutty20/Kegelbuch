@@ -1,0 +1,37 @@
+name: Qodana
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2024.3
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1646119969 }}
+        with:
+          pr-mode: false
